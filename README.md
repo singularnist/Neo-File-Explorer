@@ -10,6 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-6ee7b7.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8+-2dd4bf.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-6ee7b7.svg)](https://fastapi.tiangolo.com/)
+[![UV](https://img.shields.io/badge/UV-Package%20Manager-6ee7b7.svg)](https://docs.astral.sh/uv/)
 
 *A sleek, modern file system explorer with full filesystem navigation, syntax highlighting, and real-time file preview.*
 
@@ -35,5 +36,39 @@
 - 🖼️ **Syntax Highlighting** - Support for 15+ programming languages
 - 🌐 **Cross-platform** - Works on Windows, Linux, and macOS
 - 🚫 **No Cache** - Always shows the latest file content
+
 ---
 
+## 🖼️ Screenshots
+
+### Main Interface
+<div align="center">
+  <img src="docs/main.png" alt="Main Interface" width="800" style="border-radius: 12px; border: 1px solid #252530;">
+  <br>
+  <em>Main application interface with file tree and preview panel</em>
+</div>
+
+### Directory Selector Modal
+<div align="center">
+  <img src="docs/select_folder.png" alt="Directory Selector Modal" width="600" style="border-radius: 12px; border: 1px solid #252530;">
+  <br>
+  <em>Modal window for browsing any directory on your system</em>
+</div>
+
+### Python File Preview
+<div align="center">
+  <img src="docs/open_python_file.png" alt="Python File Preview" width="800" style="border-radius: 12px; border: 1px solid #252530;">
+  <br>
+  <em>Python code with syntax highlighting and file statistics</em>
+</div>
+
+### Markdown File Preview
+<div align="center">
+  <img src="docs/open_readme_md.png" alt="Markdown File Preview" width="800" style="border-radius: 12px; border: 1px solid #252530;">
+  <br>
+  <em>Markdown rendering with styled headings and code blocks</em>
+</div>
+
+---
+
+## 📁 Project Structure

@@ -94,7 +94,7 @@ def build_tree_dict(base_path: str):
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
-    template_path = os.path.join(os.path.dirname(__file__), "tree_template.html")
+    template_path = os.path.join(os.path.dirname(__file__), "index.html")
     
     if not os.path.exists(template_path):
         return HTMLResponse("Template file not found", status_code=500)

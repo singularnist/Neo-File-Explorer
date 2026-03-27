@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEO DOCS | Project Documentation Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-deep: #03050c;
+    --bg-dark: #080b14;
+    --bg-card: #0e121f;
+    --bg-elevated: #151c2a;
+    --border-dim: #252e3f;
+    --text-primary: #eef5ff;
+    --text-secondary: #9ab3d5;
+    --text-muted: #5f7a9e;
+    --accent-primary: #6ee7b7;
+    --accent-secondary: #5ee0b0;
+    --accent-teal: #2dd4bf;
+    --accent-amber: #fbbf24;
+    --accent-purple: #a78bfa;
+    --gradient-logo: linear-gradient(135deg, #6ee7b7, #2dd4bf);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(110, 231, 183, 0.2);
+}
+
+body {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    display: flex;
+    height: 100vh;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    overflow: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(110,231,183,0.06) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(45,211,191,0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+#tree-container {
+    width: 380px;
+    background: rgba(8, 11, 20, 0.96);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border-dim);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.tree-header {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--border-dim);
+    background: linear-gradient(180deg, rgba(14,18,31,0.98) 0%, rgba(8,11,20,0.96) 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-logo);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: var(--shadow-glow);
+}
+
+.logo h1 {
+    font-size: 20px;
+    font-weight: 700;
+    background: var(--gradient-logo);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+
+.version-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    background: rgba(110,231,183,0.15);
+    border-radius: 20px;
+    color: var(--accent-primary);
+    margin-left: 8px;
+}
+
+.stats-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.stat-pill {
+    flex: 1;
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid var(--border-dim);
+}
+
+.stat-number {
+    font-size: 20px;
+    font-weight: 700;
+    background: var(--gradient-logo);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.current-dir-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-dim);
+    border-radius: 12px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 12px;
+    font-family: monospace;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+}
+
+.current-dir-btn:hover {
+    background: rgba(110,231,183,0.1);
+    border-color: var(--accent-primary);
+}
+
+.current-dir-btn span:first-child {
+    font-size: 14px;
+}
+
+.current-dir-btn .dir-path {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+    margin-left: 8px;
+}
+
+.current-dir-btn .dir-icon {
+    color: var(--accent-primary);
+}
+
+.search-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 40px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-dim);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(110,231,183,0.15);
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    opacity: 0.5;
+}
+
+.search-shortcut {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    background: var(--border-dim);
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: var(--text-secondary);
+}
+
+.tree-content {
+    padding: 0 16px 16px;
+    flex: 1;
+}
+
+.tree {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+}
+
+.tree-node {
+    margin: 2px 0;
+}
+
+.tree-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    gap: 10px;
+}
+
+.tree-item:hover {
+    background: rgba(110,231,183,0.08);
+    transform: translateX(4px);
+}
+
+.tree-item.active {
+    background: linear-gradient(90deg, rgba(110,231,183,0.12) 0%, rgba(45,211,191,0.06) 100%);
+    border-left: 2px solid var(--accent-primary);
+}
+
+.tree-icon {
+    font-size: 14px;
+    width: 24px;
+    text-align: center;
+}
+
+.tree-name {
+    flex: 1;
+    font-size: 12px;
+}
+
+.tree-name.folder {
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+.tree-name.file {
+    color: var(--text-secondary);
+}
+
+.copy-path-btn {
+    opacity: 0;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-dim);
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    transition: all 0.2s;
+}
+
+.tree-item:hover .copy-path-btn {
+    opacity: 1;
+}
+
+.copy-path-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.tree-children {
+    margin-left: 20px;
+    border-left: 1px dashed var(--border-dim);
+    margin-top: 2px;
+}
+
+.recent-files {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-dim);
+}
+
+.recent-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.recent-title i {
+    font-size: 12px;
+}
+
+.recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.recent-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    font-family: monospace;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.recent-item:hover {
+    background: rgba(110,231,183,0.08);
+    color: var(--text-primary);
+}
+
+.recent-item i {
+    width: 20px;
+    font-size: 12px;
+}
+
+.tree-footer {
+    margin-top: auto;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-dim);
+    background: rgba(8, 11, 20, 0.8);
+}
+
+.contacts-list {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 12px;
+}
+
+.contact-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 22px;
+    transition: all 0.2s;
+}
+
+.contact-link:hover {
+    color: var(--accent-primary);
+    transform: translateY(-2px);
+}
+
+.license-section {
+    text-align: center;
+}
+
+.license-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(110,231,183,0.1);
+    border-radius: 20px;
+    font-size: 10px;
+    color: var(--accent-primary);
+}
+
+.license-badge i {
+    font-size: 10px;
+}
+
+.copyright {
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+#viewer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.viewer-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border-dim);
+    background: rgba(8, 11, 20, 0.85);
+    backdrop-filter: blur(20px);
+}
+
+.file-info-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.file-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-icon-large {
+    font-size: 28px;
+}
+
+.file-name-display {
+    font-size: 18px;
+    font-weight: 600;
+    font-family: monospace;
+}
+
+.file-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-elevated);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border-dim);
+}
+
+.meta-item i {
+    font-size: 12px;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-dim);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.action-btn i {
+    font-size: 12px;
+}
+
+.content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px;
+}
+
+pre {
+    margin: 0;
+    background: var(--bg-card) !important;
+    border-radius: 16px;
+    border: 1px solid var(--border-dim);
+    overflow-x: auto;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--bg-card);
+    border-radius: 24px;
+    border: 1px solid var(--border-dim);
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    width: 700px;
+    max-width: 90vw;
+    max-height: 85vh;
+    background: var(--bg-card);
+    border-radius: 24px;
+    border: 1px solid var(--border-dim);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-dim);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-header h3 i {
+    color: var(--accent-primary);
+    font-size: 20px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.modal-close:hover {
+    background: rgba(110,231,183,0.1);
+    color: var(--accent-primary);
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+}
+
+.modal-breadcrumb {
+    padding: 10px 14px;
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+    font-family: monospace;
+}
+
+.modal-breadcrumb i {
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+.breadcrumb-item {
+    cursor: pointer;
+    color: var(--accent-primary);
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.breadcrumb-item:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb-sep {
+    color: var(--text-muted);
+}
+
+.modal-dir-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.modal-dir-entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 1px solid var(--border-dim);
+    font-size: 13px;
+    font-family: monospace;
+    border-radius: 8px;
+    margin: 2px 0;
+}
+
+.modal-dir-entry:hover {
+    background: rgba(110,231,183,0.1);
+    transform: translateX(4px);
+}
+
+.modal-dir-entry i {
+    width: 24px;
+    font-size: 16px;
+    color: var(--accent-primary);
+}
+
+.modal-dir-entry .entry-name {
+    flex: 1;
+}
+
+.modal-dir-entry .entry-path {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.loading-spinner {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.loading-spinner i {
+    font-size: 32px;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.modal-custom-path {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-dim);
+    display: flex;
+    gap: 12px;
+}
+
+.modal-custom-path input {
+    flex: 1;
+    padding: 12px 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-dim);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: monospace;
+}
+
+.modal-custom-path input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.modal-custom-path button {
+    padding: 12px 24px;
+    background: var(--accent-primary);
+    border: none;
+    border-radius: 12px;
+    color: #03050c;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-custom-path button:hover {
+    background: var(--accent-secondary);
+    transform: scale(1.02);
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-dim);
+    display: flex;
+    gap: 12px;
+}
+
+.modal-footer button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.modal-select-btn {
+    background: var(--accent-primary);
+    border: none;
+    color: #03050c;
+}
+
+.modal-select-btn:hover {
+    background: var(--accent-secondary);
+    transform: scale(1.02);
+}
+
+.modal-cancel-btn {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-dim);
+    color: var(--text-secondary);
+}
+
+.modal-cancel-btn:hover {
+    background: rgba(110,231,183,0.1);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-dim);
+    padding: 12px 20px;
+    border-radius: 12px;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toast i {
+    font-size: 16px;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-deep);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-dim);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+</style>
+</head>
+<body>
+
+<div id="tree-container">
+    <div class="tree-header">
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-feather-alt"></i></div>
+            <div>
+                <h1>NEO DOCS <span class="version-badge">v2.0</span></h1>
+            </div>
+        </div>
+        
+        <div class="stats-row">
+            <div class="stat-pill">
+                <div class="stat-number" id="total-files-count">0</div>
+                <div class="stat-label"><i class="far fa-file"></i> Files</div>
+            </div>
+            <div class="stat-pill">
+                <div class="stat-number" id="total-folders-count">0</div>
+                <div class="stat-label"><i class="far fa-folder"></i> Folders</div>
+            </div>
+        </div>
+        
+        <button class="current-dir-btn" id="open-dir-modal-btn">
+            <i class="fas fa-folder-open"></i>
+            <span class="dir-path" id="current-dir-display">{{ current_root }}</span>
+            <i class="fas fa-chevron-right dir-icon"></i>
+        </button>
+        
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="search-input" placeholder="Search files...">
+            <span class="search-shortcut">⌘K</span>
+        </div>
+    </div>
+    <div class="tree-content">
+        <div id="tree-root" class="tree"></div>
+        
+        <div class="recent-files">
+            <div class="recent-title">
+                <i class="fas fa-clock"></i>
+                RECENTLY OPENED
+            </div>
+            <div class="recent-list" id="recent-list"></div>
+        </div>
+    </div>
+    
+    <div class="tree-footer">
+        <div class="contacts-list">
+            <a href="https://github.com/singularnist" target="_blank" class="contact-link"><i class="fab fa-github"></i></a>
+            <a href="https://t.me/s_ulyanivskiy" target="_blank" class="contact-link"><i class="fab fa-telegram"></i></a>
+            <a href="mailto:serhius100@gmail.com" class="contact-link"><i class="fas fa-envelope"></i></a>
+        </div>
+        <div class="license-section">
+            <div class="license-badge">
+                <i class="fas fa-balance-scale"></i>
+                MIT License
+            </div>
+            <div class="copyright" id="copyright-year">© 2025 · Open Source</div>
+        </div>
+    </div>
+</div>
+
+<div id="viewer">
+    <div class="viewer-header">
+        <div class="file-info-bar">
+            <div class="file-title">
+                <span class="file-icon-large" id="current-file-icon"><i class="far fa-file"></i></span>
+                <span class="file-name-display" id="current-file-name">Select a file</span>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn" id="copy-content-btn" style="display: none;"><i class="far fa-copy"></i> Copy</button>
+                <button class="action-btn" id="download-file-btn" style="display: none;"><i class="fas fa-download"></i> Download</button>
+            </div>
+        </div>
+        <div class="file-meta" id="file-meta" style="display: none;">
+            <div class="meta-item"><i class="fas fa-code"></i> <span id="meta-lines">0</span> lines</div>
+            <div class="meta-item"><i class="fas fa-weight-hanging"></i> <span id="meta-size">0</span> B</div>
+            <div class="meta-item"><i class="fas fa-font"></i> <span id="meta-words">0</span> words</div>
+            <div class="meta-item"><i class="fas fa-folder"></i> <span id="meta-path">-</span></div>
+        </div>
+    </div>
+    <div class="content-area">
+        <div id="doc-content" class="empty-state">
+            <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
+            <h3>Welcome to NEO DOCS</h3>
+            <p>Click any file to explore your documentation</p>
+            <p style="font-size: 12px; margin-top: 12px;">✨ Supports: Markdown, Code, JSON, YAML, and more</p>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="dir-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-folder-tree"></i> Select Directory</h3>
+            <button class="modal-close" id="close-modal-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-breadcrumb" id="modal-breadcrumb"></div>
+            <div class="modal-dir-list" id="modal-dir-list">
+                <div class="loading-spinner"><i class="fas fa-spinner fa-pulse"></i><br>Loading...</div>
+            </div>
+            <div class="modal-custom-path">
+                <input type="text" id="modal-custom-path" placeholder="Enter custom path...">
+                <button id="modal-go-btn"><i class="fas fa-arrow-right"></i> Go</button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-cancel-btn" id="modal-cancel-btn"><i class="fas fa-times"></i> Cancel</button>
+            <button class="modal-select-btn" id="modal-select-btn"><i class="fas fa-check"></i> Select This Directory</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let treeData = {{ tree_json | safe }};
+let lastActive = null;
+let currentSearchTerm = '';
+let currentFilePath = '';
+let currentFileContent = '';
+let recentFiles = JSON.parse(localStorage.getItem('recentFiles') || '[]');
+let currentRoot = "{{ current_root }}";
+let currentBrowsePath = currentRoot;
+
+const SUPPORTED_EXTENSIONS = ['.md', '.txt', '.py', '.json', '.yml', '.yaml', '.html', '.css', '.js', '.jsx', '.ts', '.tsx'];
+
+document.getElementById('copyright-year').innerHTML = `© ${new Date().getFullYear()} · Open Source`;
+
+function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 2500);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function getFileIcon(filename) {
+    if (filename.endsWith('.md')) return '<i class="fab fa-markdown"></i>';
+    if (filename.endsWith('.py')) return '<i class="fab fa-python"></i>';
+    if (filename.endsWith('.json')) return '<i class="fas fa-code"></i>';
+    if (filename.endsWith('.html')) return '<i class="fab fa-html5"></i>';
+    if (filename.endsWith('.css')) return '<i class="fab fa-css3-alt"></i>';
+    if (filename.endsWith('.js')) return '<i class="fab fa-js"></i>';
+    if (filename.endsWith('.ts')) return '<i class="fas fa-file-code"></i>';
+    return '<i class="far fa-file"></i>';
+}
+
+function addToRecent(filePath) {
+    recentFiles = [filePath, ...recentFiles.filter(f => f !== filePath)].slice(0, 5);
+    localStorage.setItem('recentFiles', JSON.stringify(recentFiles));
+    renderRecentFiles();
+}
+
+function clearRecentFiles() {
+    recentFiles = [];
+    localStorage.setItem('recentFiles', JSON.stringify(recentFiles));
+    renderRecentFiles();
+}
+
+function renderRecentFiles() {
+    const container = document.getElementById('recent-list');
+    if (!container) return;
+    if (recentFiles.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 11px;"><i class="fas fa-history"></i> No recent files</div>';
+        return;
+    }
+    container.innerHTML = recentFiles.map(file => `
+        <div class="recent-item" data-path="${escapeHtml(file)}">
+            <i class="far fa-file-code"></i>
+            <span style="flex:1; overflow:hidden;">${escapeHtml(file.split(/[\\/]/).pop())}</span>
+        </div>
+    `).join('');
+    document.querySelectorAll('.recent-item').forEach(item => {
+        item.addEventListener('click', () => loadFileContent(item.dataset.path));
+    });
+}
+
+function buildTree(tree, path = '', filterTerm = '') {
+    if (!tree || typeof tree !== 'object') return '';
+    let html = '';
+    const keys = Object.keys(tree).sort((a, b) => {
+        const aIsDir = tree[a] && typeof tree[a] === 'object' && Object.keys(tree[a]).length > 0;
+        const bIsDir = tree[b] && typeof tree[b] === 'object' && Object.keys(tree[b]).length > 0;
+        if (aIsDir === bIsDir) return a.localeCompare(b);
+        return aIsDir ? -1 : 1;
+    });
+    
+    for (const key of keys) {
+        const fullPath = path ? path + '/' + key : key;
+        const isDirectory = tree[key] && typeof tree[key] === 'object' && Object.keys(tree[key]).length > 0;
+        const matchesFilter = !filterTerm || key.toLowerCase().includes(filterTerm.toLowerCase());
+        
+        if (isDirectory) {
+            const childrenHtml = buildTree(tree[key], fullPath, filterTerm);
+            if (!matchesFilter && !childrenHtml.trim() && filterTerm) continue;
+            html += `<div class="tree-node"><div class="tree-item folder-item" data-path="${escapeHtml(fullPath)}"><span class="tree-icon"><i class="fas fa-folder"></i></span><span class="tree-name folder">${escapeHtml(key)}</span></div><div class="tree-children" style="display: ${filterTerm ? 'block' : 'none'};">${childrenHtml}</div></div>`;
+        } else {
+            if (!matchesFilter && filterTerm) continue;
+            if (!SUPPORTED_EXTENSIONS.some(ext => key.endsWith(ext))) continue;
+            const icon = getFileIcon(key);
+            html += `<div class="tree-node"><div class="tree-item file-item" data-path="${escapeHtml(fullPath)}"><span class="tree-icon">${icon}</span><span class="tree-name file">${escapeHtml(key)}</span><button class="copy-path-btn" data-path="${escapeHtml(fullPath)}"><i class="far fa-copy"></i></button></div></div>`;
+        }
+    }
+    return html;
+}
+
+function renderTree(filterTerm = '') {
+    document.getElementById('tree-root').innerHTML = buildTree(treeData, '', filterTerm);
+    const stats = (function countStats(tree) {
+        let files = 0, folders = 0;
+        function traverse(obj) {
+            for (let key in obj) {
+                if (obj[key] && typeof obj[key] === 'object' && Object.keys(obj[key]).length > 0) {
+                    folders++;
+                    traverse(obj[key]);
+                } else if (obj[key] === null && SUPPORTED_EXTENSIONS.some(ext => key.endsWith(ext))) files++;
+            }
+        }
+        traverse(tree);
+        return { files, folders };
+    })(treeData);
+    document.getElementById('total-files-count').textContent = stats.files;
+    document.getElementById('total-folders-count').textContent = stats.folders;
+    
+    document.querySelectorAll('.folder-item').forEach(folder => {
+        folder.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const children = folder.parentElement.querySelector('.tree-children');
+            if (children) {
+                const isHidden = children.style.display === 'none';
+                children.style.display = isHidden ? 'block' : 'none';
+                folder.querySelector('.tree-icon').innerHTML = isHidden ? '<i class="fas fa-folder-open"></i>' : '<i class="fas fa-folder"></i>';
+            }
+            if (lastActive) lastActive.classList.remove('active');
+            folder.classList.add('active');
+            lastActive = folder;
+        });
+    });
+    
+    document.querySelectorAll('.file-item').forEach(file => {
+        file.addEventListener('click', (e) => {
+            e.stopPropagation();
+            loadFileContent(file.dataset.path);
+            if (lastActive) lastActive.classList.remove('active');
+            file.classList.add('active');
+            lastActive = file;
+        });
+    });
+    
+    document.querySelectorAll('.copy-path-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(btn.dataset.path);
+            showToast('Path copied');
+        });
+    });
+}
+
+function loadFileContent(path) {
+    currentFilePath = path;
+    document.getElementById('current-file-name').textContent = path.split(/[\\/]/).pop();
+    document.getElementById('current-file-icon').innerHTML = getFileIcon(path);
+    document.getElementById('file-meta').style.display = 'flex';
+    document.getElementById('meta-path').textContent = path;
+    document.getElementById('copy-content-btn').style.display = 'flex';
+    document.getElementById('download-file-btn').style.display = 'flex';
+    
+    let cleanPath = path.replace(/^\/+/, '').replace(/^\.\//, '');
+    document.querySelector('.content-area').innerHTML = `<div class="empty-state loading"><div class="empty-icon"><i class="fas fa-spinner fa-pulse"></i></div><h3>Loading...</h3></div>`;
+    
+    const timestamp = new Date().getTime();
+    const url = `/file/${encodeURIComponent(cleanPath)}?t=${timestamp}`;
+    
+    fetch(url, {
+        cache: 'no-cache',
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+        }
+    })
+        .then(res => res.ok ? res.text() : Promise.reject(`HTTP ${res.status}`))
+        .then(text => {
+            currentFileContent = text;
+            const lines = text.split('\n').length;
+            document.getElementById('meta-lines').textContent = lines;
+            const size = new Blob([text]).size;
+            document.getElementById('meta-size').textContent = size < 1024 ? size + ' B' : (size / 1024).toFixed(1) + ' KB';
+            document.getElementById('meta-words').textContent = text.trim().split(/\s+/).filter(w => w.length).length;
+            addToRecent(path);
+            
+            if (path.endsWith('.md')) {
+                let html = escapeHtml(text);
+                html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>').replace(/^## (.*$)/gm, '<h2>$1</h2>').replace(/^### (.*$)/gm, '<h3>$1</h3>');
+                html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>');
+                html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (m, l, c) => `<pre><code class="hljs language-${l}">${escapeHtml(c)}</code></pre>`);
+                html = html.replace(/`(.*?)`/g, '<code>$1</code>').replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+                document.querySelector('.content-area').innerHTML = `<div style="max-width: 900px; line-height: 1.8;">${html}</div>`;
+            } else {
+                const lang = path.split('.').pop();
+                document.querySelector('.content-area').innerHTML = `<pre><code class="hljs language-${lang}">${escapeHtml(text)}</code></pre>`;
+                hljs.highlightElement(document.querySelector('.content-area code'));
+            }
+        })
+        .catch(err => {
+            document.querySelector('.content-area').innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-exclamation-triangle"></i></div><h3>Error</h3><p>${err}</p></div>`;
+            document.getElementById('file-meta').style.display = 'none';
+            document.getElementById('copy-content-btn').style.display = 'none';
+            document.getElementById('download-file-btn').style.display = 'none';
+        });
+}
+
+async function loadModalDirectoryContents(path) {
+    let normalizedPath = path;
+    if (normalizedPath && !normalizedPath.startsWith('/') && !normalizedPath.match(/^[A-Za-z]:/)) {
+        normalizedPath = '/' + normalizedPath;
+    }
+    
+    currentBrowsePath = normalizedPath;
+    const container = document.getElementById('modal-dir-list');
+    container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-pulse"></i><br>Loading...</div>';
+    
+    try {
+        const res = await fetch(`/api/browse?path=${encodeURIComponent(normalizedPath)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        
+        const parts = data.current_path.replace(/\\/g, '/').split('/').filter(p => p);
+        let breadcrumbHtml = `<span class="breadcrumb-item" data-path=""><i class="fas fa-home"></i> Root</span>`;
+        let current = '';
+        for (let i = 0; i < parts.length; i++) {
+            if (i === 0 && !parts[i].includes(':')) {
+                current = '/' + parts[i];
+            } else if (i === 0 && parts[i].includes(':')) {
+                current = parts[i];
+            } else {
+                current += '/' + parts[i];
+            }
+            breadcrumbHtml += `<span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span><span class="breadcrumb-item" data-path="${escapeHtml(current)}"><i class="fas fa-folder"></i> ${escapeHtml(parts[i])}</span>`;
+        }
+        document.getElementById('modal-breadcrumb').innerHTML = breadcrumbHtml;
+        
+        document.querySelectorAll('#modal-breadcrumb .breadcrumb-item').forEach(el => {
+            el.addEventListener('click', () => {
+                const p = el.dataset.path;
+                if (p === '') loadModalSystemRoots();
+                else loadModalDirectoryContents(p);
+            });
+        });
+        
+        let itemsHtml = '';
+        if (data.parent) {
+            itemsHtml += `<div class="modal-dir-entry" data-path="${escapeHtml(data.parent)}"><i class="fas fa-level-up-alt"></i><span class="entry-name">.. (Up one level)</span><span class="entry-path"><i class="fas fa-arrow-up"></i></span></div>`;
+        }
+        for (const item of data.items) {
+            itemsHtml += `<div class="modal-dir-entry" data-path="${escapeHtml(item.path)}"><i class="fas fa-folder"></i><span class="entry-name">${escapeHtml(item.name)}</span><span class="entry-path"><i class="fas fa-folder-open"></i></span></div>`;
+        }
+        if (itemsHtml === '') itemsHtml = '<div class="loading-spinner"><i class="fas fa-folder-open"></i><br>No subdirectories found</div>';
+        container.innerHTML = itemsHtml;
+        
+        document.querySelectorAll('.modal-dir-entry').forEach(el => {
+            el.addEventListener('click', () => {
+                const p = el.dataset.path;
+                if (p) loadModalDirectoryContents(p);
+            });
+        });
+    } catch (err) {
+        container.innerHTML = `<div class="loading-spinner"><i class="fas fa-exclamation-triangle"></i><br>Error: ${err.message}</div>`;
+    }
+}
+
+async function loadModalSystemRoots() {
+    try {
+        const res = await fetch('/api/system-roots');
+        const roots = await res.json();
+        document.getElementById('modal-breadcrumb').innerHTML = '<span class="breadcrumb-item"><i class="fas fa-database"></i> System Roots</span>';
+        const container = document.getElementById('modal-dir-list');
+        let itemsHtml = roots.map(root => `<div class="modal-dir-entry" data-path="${escapeHtml(root.full_path)}"><i class="fas fa-hdd"></i><span class="entry-name">${escapeHtml(root.name)}</span><span class="entry-path">${escapeHtml(root.path)}</span></div>`).join('');
+        container.innerHTML = itemsHtml;
+        document.querySelectorAll('.modal-dir-entry').forEach(el => {
+            el.addEventListener('click', () => loadModalDirectoryContents(el.dataset.path));
+        });
+    } catch (err) {
+        console.error('Error loading roots:', err);
+    }
+}
+
+async function selectDirectoryFromModal() {
+    const path = currentBrowsePath;
+    if (!path) {
+        showToast('No directory selected');
+        return;
+    }
+    
+    showToast(`Selecting: ${path}`);
+    try {
+        const res = await fetch(`/api/tree?root_path=${encodeURIComponent(path)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        treeData = data.tree;
+        currentRoot = data.current_root;
+        document.getElementById('current-dir-display').textContent = currentRoot;
+        renderTree(currentSearchTerm);
+
+        clearRecentFiles();
+        
+        document.querySelector('.content-area').innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-check-circle"></i></div><h3>Directory Selected</h3><p>Now viewing: ${escapeHtml(currentRoot)}</p><p>Click any file to explore</p></div>`;
+        document.getElementById('file-meta').style.display = 'none';
+        document.getElementById('copy-content-btn').style.display = 'none';
+        document.getElementById('download-file-btn').style.display = 'none';
+        showToast(`✅ Switched to: ${currentRoot.split(/[\\/]/).pop()}`);
+        document.getElementById('dir-modal').classList.remove('active');
+    } catch (err) {
+        showToast(`❌ Error: ${err.message}`);
+    }
+}
+
+document.getElementById('search-input').addEventListener('input', (e) => {
+    currentSearchTerm = e.target.value;
+    renderTree(currentSearchTerm);
+    if (currentSearchTerm) {
+        document.querySelectorAll('.tree-children').forEach(c => c.style.display = 'block');
+        document.querySelectorAll('.tree-icon').forEach(icon => {
+            if (icon.innerHTML.includes('fa-folder')) icon.innerHTML = '<i class="fas fa-folder-open"></i>';
+        });
+    }
+});
+
+document.getElementById('copy-content-btn')?.addEventListener('click', () => {
+    if (currentFileContent) {
+        navigator.clipboard.writeText(currentFileContent);
+        showToast('Content copied');
+    }
+});
+
+document.getElementById('download-file-btn')?.addEventListener('click', () => {
+    if (currentFileContent && currentFilePath) {
+        const blob = new Blob([currentFileContent], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = currentFilePath.split(/[\\/]/).pop();
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast('File downloaded');
+    }
+});
+
+document.getElementById('open-dir-modal-btn')?.addEventListener('click', () => {
+    document.getElementById('dir-modal').classList.add('active');
+    loadModalDirectoryContents(currentRoot);
+});
+
+document.getElementById('close-modal-btn')?.addEventListener('click', () => {
+    document.getElementById('dir-modal').classList.remove('active');
+});
+
+document.getElementById('modal-cancel-btn')?.addEventListener('click', () => {
+    document.getElementById('dir-modal').classList.remove('active');
+});
+
+document.getElementById('modal-select-btn')?.addEventListener('click', () => {
+    selectDirectoryFromModal();
+});
+
+document.getElementById('modal-go-btn')?.addEventListener('click', async () => {
+    let customPath = document.getElementById('modal-custom-path').value.trim();
+    if (customPath) {
+        if (!customPath.startsWith('/') && !customPath.match(/^[A-Za-z]:/)) {
+            customPath = '/' + customPath;
+        }
+        await loadModalDirectoryContents(customPath);
+    }
+});
+
+document.getElementById('modal-custom-path')?.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter') {
+        let customPath = e.target.value.trim();
+        if (customPath) {
+            if (!customPath.startsWith('/') && !customPath.match(/^[A-Za-z]:/)) {
+                customPath = '/' + customPath;
+            }
+            await loadModalDirectoryContents(customPath);
+        }
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('search-input').focus();
+    }
+    if (e.key === 'Escape') {
+        document.getElementById('dir-modal').classList.remove('active');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderTree('');
+    renderRecentFiles();
+});
+
+window.selectDirectoryFromModal = selectDirectoryFromModal;
+</script>
+</body>
+</html>
